@@ -1,0 +1,32 @@
+{
+  "name": "todo-widget",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/main.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && electron-builder",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SSSnix/TODO-widget.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/SSSnix/TODO-widget/issues"
+  },
+  "homepage": "https://github.com/SSSnix/TODO-widget#readme",
+  "dependencies": {
+    "electron": "^41.5.0",
+    "firebase": "^12.12.1"
+  },
+  "devDependencies": {
+    "electron-builder": "^26.8.1",
+    "vite": "^8.0.10",
+    "vite-plugin-electron": "^0.29.1"
+  }
+}

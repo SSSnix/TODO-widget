@@ -1,0 +1,65 @@
+# === Node / NPM ===
+node_modules/
+npm-debug.log*
+yarn-error.log*
+.pnp.*
+.env
+.env.local
+.env.*.local
+
+# === Vite / Build ===
+dist/
+.out/
+.vite/
+*.log
+*.tmp
+
+# === Electron ===
+release/
+build/
+*.exe
+*.dmg
+*.AppImage
+*.snap
+*.msi
+*.blockmap
+
+# === Firebase / Secrets ===
+firebase-service-account.json
+*.p12
+*.pem
+
+# === IDE / WebStorm ===
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+*.swp
+*.swo
+*~
+
+# === OS ===
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.fseventsd
+.Spotlight-V100
+
+# Linux
+*~
+.Trash-*
+
+# === Logs / Debug ===
+debug.log
+error.log
+*.crash
