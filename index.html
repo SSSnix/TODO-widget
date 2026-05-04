@@ -1,9 +1,43 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <title>vite-plugin-electron</title>
-  </head>
-  <body>
-    <div>An entry file for electron renderer process.</div>
-  </body>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Todo Widget</title>
+
+  <link rel="stylesheet" href="/src/renderer/style.css" />
+</head>
+<body>
+<!-- Верхняя панель: drag + кнопки -->
+<div class="drag-bar">
+  <span style="font-size: 13px; opacity: 0.8;">📝 Todo Widget</span>
+  <div class="window-controls">
+    <button class="control-btn" id="minimize">−</button>
+    <button class="control-btn close" id="close">✕</button>
+  </div>
+</div>
+
+<!-- Вкладки -->
+<div class="tabs" id="tabs">
+  <div class="tab active" data-list="own">📝 Мой</div>
+  <div class="tab" data-list="friend1">👤 Друг 1</div>
+  <div class="tab" data-list="friend2">👤 Друг 2</div>
+</div>
+
+<!-- Список задач -->
+<div class="todo-list" id="todoList">
+  <div style="text-align: center; color: var(--text-dim); margin-top: 40px; font-size: 13px;">
+    Задачи появятся здесь ✨
+  </div>
+</div>
+
+<!-- Форма добавления -->
+<form class="add-form" id="addForm">
+  <input type="text" class="add-input" id="taskInput" placeholder="Новая задача..." autocomplete="off" />
+  <button type="submit" class="add-btn">+</button>
+</form>
+
+<!-- Логика -->
+<script type="module" src="/src/renderer/app.js"></script>
+</body>
 </html>

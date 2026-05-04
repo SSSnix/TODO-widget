@@ -1,0 +1,162 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+:root {
+    --glass: rgba(255, 255, 255, 0.12);
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --blur: 20px;
+    --accent: #8b5cf6;
+    --text: #f8fafc;
+    --text-dim: rgba(248, 250, 252, 0.7);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    background: var(--glass);
+    backdrop-filter: blur(var(--blur));
+    -webkit-backdrop-filter: blur(var(--blur));
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    color: var(--text);
+    padding: 12px;
+    height: 100vh;
+    overflow: hidden;
+    user-select: none;
+}
+
+/* === Drag-зона === */
+.drag-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 32px;
+    -webkit-app-region: drag;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 12px;
+    z-index: 10;
+}
+
+.window-controls {
+    -webkit-app-region: no-drag;
+    display: flex;
+    gap: 8px;
+}
+
+.control-btn {
+    width: 24px; height: 24px;
+    border: none;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.15);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    transition: 0.2s;
+}
+.control-btn:hover { background: rgba(255,255,255,0.3); }
+.control-btn.close:hover { background: #ef4444; }
+
+/* === Вкладки === */
+.tabs {
+    display: flex;
+    gap: 6px;
+    margin-top: 36px;
+    margin-bottom: 12px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+
+.tab {
+    padding: 6px 14px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 10px;
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: 0.2s;
+    border: 1px solid transparent;
+}
+.tab:hover { background: rgba(255,255,255,0.25); }
+.tab.active {
+    background: var(--accent);
+    border-color: rgba(255,255,255,0.4);
+    color: #fff;
+}
+
+/* === Список задач === */
+.todo-list {
+    height: calc(100% - 120px);
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.todo-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    margin: 6px 0;
+    background: rgba(255,255,255,0.08);
+    border-radius: 12px;
+    transition: 0.2s;
+}
+.todo-item:hover { background: rgba(255,255,255,0.15); }
+
+.todo-item input[type="checkbox"] {
+    width: 18px; height: 18px;
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+
+.todo-text {
+    flex: 1;
+    font-size: 14px;
+}
+.todo-text.done {
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+
+/* === Форма добавления === */
+.add-form {
+    position: absolute;
+    bottom: 12px; left: 12px; right: 12px;
+    display: flex;
+    gap: 8px;
+}
+
+.add-input {
+    flex: 1;
+    padding: 10px 14px;
+    border: none;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.15);
+    color: var(--text);
+    font-size: 14px;
+    outline: none;
+}
+.add-input::placeholder { color: var(--text-dim); }
+.add-input:focus { background: rgba(255,255,255,0.25); }
+
+.add-btn {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 12px;
+    background: var(--accent);
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.add-btn:hover { filter: brightness(1.1); }
+
+/* === Скроллбар === */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.3);
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.5); }
