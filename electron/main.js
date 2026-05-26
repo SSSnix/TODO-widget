@@ -1,9 +1,46 @@
 const { app, BrowserWindow, Tray, Menu, ipcMain } = require('electron');
 const path = require('path');
-const { VITE_DEV_SERVER_URL } = process.env;
+const fs = require('fs').promises;
+const fssync = require('fs');
 
 let win = null;
 let tray = null;
+let dbPath = null;
+
+// === JSON "Database" ===
+async function initDatabase() {
+    dbPath = path.join(app.getPath('userData'), 'todo-data.json');
+
+    try {
+        await fs.access(dbPath);
+        console.log('✅ Database loaded:', dbPath);
+    } catch {
+        const defaultData = {
+            lists: {
+                'own': { id: 'own', owner: 'current_user', name: 'Мой список', sharedWith: [] }
+            },
+            tasks: {
+                'own': []
+            }
+        };
+        await fs.writeFile(dbPath, JSON.stringify(defaultData, null, 2));
+        console.log('✅ Database created:', dbPath);
+    }
+}
+
+async function readDb() {
+    try {
+        const data = await fs.readFile(dbPath, 'utf-8');
+        return JSON.parse(data);
+    } catch (e) {
+        console.error('Read error:', e);
+        return { lists: {}, tasks: {} };
+    }
+}
+
+async function writeDb(data) {
+    await fs.writeFile(dbPath, JSON.stringify(data, null, 2));
+}
 
 function createWindow() {
     win = new BrowserWindow({
@@ -20,21 +57,18 @@ function createWindow() {
         },
     });
 
+    const { VITE_DEV_SERVER_URL } = process.env;
+
     if (VITE_DEV_SERVER_URL) {
         win.loadURL(VITE_DEV_SERVER_URL);
-        win.webContents.openDevTools();
     } else {
         win.loadFile(path.join(__dirname, '../dist/index.html'));
     }
-
-    win.webContents.on('did-finish-load', () => {
-        win.webContents.send('app-ready');
-    });
 }
 
 function createTray() {
-
-    tray = new Tray(path.join(__dirname, '../public/icon.png'));
+    const iconPath = path.join(__dirname, '../public/icon.png');
+    tray = new Tray(iconPath);
     tray.setToolTip('Todo Widget');
 
     const contextMenu = Menu.buildFromTemplate([
@@ -43,13 +77,89 @@ function createTray() {
         { label: 'Выход', click: () => app.quit() },
     ]);
     tray.setContextMenu(contextMenu);
-
-    tray.on('click', () => {
-        win.isVisible() ? win.hide() : win.show();
-    });
+    tray.on('click', () => win.isVisible() ? win.hide() : win.show());
 }
 
-app.whenReady().then(() => {
+// === IPC: окно ===
+ipcMain.on('window-minimize', () => win?.minimize());
+ipcMain.on('window-close', () => win?.hide());
+
+// === IPC: JSON API ===
+
+ipcMain.handle('db:get-tasks', async (event, listId) => {
+    try {
+        const data = await readDb();
+        return { success: true, data: data.tasks[listId] || [] };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+});
+
+ipcMain.handle('db:add-task', async (event, { listId, text }) => {
+    try {
+        const data = await readDb();
+
+        // Создаём список, если нет
+        if (!data.tasks[listId]) data.tasks[listId] = [];
+        if (!data.lists[listId]) {
+            data.lists[listId] = { id: listId, owner: 'current_user', name: listId, sharedWith: [] };
+        }
+
+        const newTask = {
+            id: `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            list_id: listId,
+            text,
+            done: 0,
+            created_at: Date.now()
+        };
+
+        data.tasks[listId].unshift(newTask);
+        await writeDb(data);
+
+        return { success: true, data: newTask };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+});
+
+ipcMain.handle('db:update-task', async (event, { taskId, done }) => {
+    try {
+        const data = await readDb();
+
+        for (const listId of Object.keys(data.tasks)) {
+            const task = data.tasks[listId].find(t => t.id === taskId);
+            if (task) {
+                task.done = done ? 1 : 0;
+                await writeDb(data);
+                return { success: true };
+            }
+        }
+        return { success: false, error: 'Task not found' };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+});
+
+ipcMain.handle('db:delete-task', async (event, taskId) => {
+    try {
+        const data = await readDb();
+
+        for (const listId of Object.keys(data.tasks)) {
+            const idx = data.tasks[listId].findIndex(t => t.id === taskId);
+            if (idx !== -1) {
+                data.tasks[listId].splice(idx, 1);
+                await writeDb(data);
+                return { success: true };
+            }
+        }
+        return { success: false, error: 'Task not found' };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+});
+
+app.whenReady().then(async () => {
+    await initDatabase();
     createWindow();
     createTray();
 
@@ -61,6 +171,3 @@ app.whenReady().then(() => {
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') app.quit();
 });
-
-ipcMain.on('window-minimize', () => win.minimize());
-ipcMain.on('window-close', () => win.hide()); // Скрываем, а не закрываем

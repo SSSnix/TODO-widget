@@ -16,6 +16,7 @@ dist/
 
 # === Electron ===
 release/
+dist-electron/
 build/
 *.exe
 *.dmg

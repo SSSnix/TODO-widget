@@ -2,7 +2,7 @@
   "name": "todo-widget",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/main.js",
+  "main": "dist-electron/main.js",
   "scripts": {
     "dev": "vite",
     "build": "vite build && electron-builder",
