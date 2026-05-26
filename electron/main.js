@@ -51,6 +51,7 @@ function createWindow() {
         resizable: false,
         alwaysOnTop: true,
         skipTaskbar: false,
+        hasShadow: true,
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
@@ -158,8 +159,44 @@ ipcMain.handle('db:delete-task', async (event, taskId) => {
     }
 });
 
+let settingsPath = null;
+let currentSettings = {
+    bgType: 'transparent',
+    opacity: 85,
+    bgColor: '#1a1a2e'
+};
+
+async function initSettings() {
+    settingsPath = path.join(app.getPath('userData'), 'settings.json');
+
+    try {
+        const data = await fs.readFile(settingsPath, 'utf-8');
+        currentSettings = JSON.parse(data);
+        console.log('✅ Settings loaded:', currentSettings);
+    } catch {
+        await fs.writeFile(settingsPath, JSON.stringify(currentSettings, null, 2));
+        console.log('✅ Settings created with defaults');
+    }
+}
+
+async function saveSettings() {
+    await fs.writeFile(settingsPath, JSON.stringify(currentSettings, null, 2));
+}
+
+// === IPC для настроек ===
+ipcMain.handle('settings:get', async () => {
+    return { success: true, data: currentSettings };
+});
+
+ipcMain.handle('settings:update', async (event, updates) => {
+    currentSettings = { ...currentSettings, ...updates };
+    await saveSettings();
+    return { success: true, data: currentSettings };
+});
+
 app.whenReady().then(async () => {
     await initDatabase();
+    await initSettings();
     createWindow();
     createTray();
 

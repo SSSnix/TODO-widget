@@ -1,12 +1,39 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
-
+/* === Обновлённые переменные === */
 :root {
-    --glass: rgba(255, 255, 255, 0.12);
+    --bg-opacity: 0.85;
+    --bg-color: #1a1a2e;
+    --glass: rgba(255, 255, 255, var(--bg-opacity));
     --glass-border: rgba(255, 255, 255, 0.2);
     --blur: 20px;
     --accent: #8b5cf6;
     --text: #f8fafc;
     --text-dim: rgba(248, 250, 252, 0.7);
+
+    --bg-primary: rgba(26, 26, 46, var(--bg-opacity));
+    --bg-secondary: rgba(255, 255, 255, 0.08);
+    --bg-hover: rgba(255, 255, 255, 0.15);
+}
+
+html, body {
+    border-radius: 20px;
+    overflow: hidden;
+    outline: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+/* Класс для сплошного фона */
+body.solid-bg {
+    --bg-primary: var(--bg-color);
+    --glass: var(--bg-color);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+/* Класс для прозрачного фона */
+body.transparent-bg {
+    --bg-primary: rgba(26, 26, 46, var(--bg-opacity));
+    --glass: rgba(26, 26, 46, var(--bg-opacity));
+    backdrop-filter: blur(var(--blur));
+    -webkit-backdrop-filter: blur(var(--blur));
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -16,53 +43,230 @@ body {
     background: var(--glass);
     backdrop-filter: blur(var(--blur));
     -webkit-backdrop-filter: blur(var(--blur));
-    border: 1px solid var(--glass-border);
     border-radius: 20px;
     color: var(--text);
     padding: 12px;
     height: 100vh;
     overflow: hidden;
     user-select: none;
+    /* Убираем острые углы */
+    -webkit-app-region: no-drag;
+    overflow: hidden;
 }
 
-/* === Drag-зона === */
+/* === Верхняя панель === */
 .drag-bar {
     position: absolute;
     top: 0; left: 0; right: 0;
-    height: 32px;
-    -webkit-app-region: drag;
+    height: 44px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     padding: 0 12px;
-    z-index: 10;
+    z-index: 100;
+    -webkit-app-region: drag;
 }
 
 .window-controls {
     -webkit-app-region: no-drag;
     display: flex;
-    gap: 8px;
+    gap: 6px;
+    z-index: 101;
+}
+
+.window-controls.left {
+    position: absolute;
+    left: 12px;
+    width: 100px;
+}
+
+.window-controls.right {
+    position: absolute;
+    right: 12px;
 }
 
 .control-btn {
-    width: 24px; height: 24px;
+    width: 28px; height: 28px;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     background: rgba(255,255,255,0.15);
     color: var(--text);
     cursor: pointer;
     font-size: 14px;
     display: flex; align-items: center; justify-content: center;
-    transition: 0.2s;
+    transition: all 0.2s;
 }
-.control-btn:hover { background: rgba(255,255,255,0.3); }
+.control-btn:hover { background: rgba(255,255,255,0.25); }
 .control-btn.close:hover { background: #ef4444; }
+.control-btn svg { width: 14px; height: 14px; }
 
-/* === Вкладки === */
+.app-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: 0.5px;
+    -webkit-app-region: no-drag;
+    text-align: center;
+}
+
+/* === Панель настроек === */
+.settings-panel {
+    position: absolute;
+    top: 48px;
+    right: 12px;
+    width: 280px;
+    background: rgba(0, 0, 0, 0.92);
+    border-radius: 16px;
+    padding: 16px;
+    z-index: 200;
+    display: none;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
+
+.settings-panel.active {
+    display: block;
+    animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.settings-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.close-settings {
+    width: 24px; height: 24px;
+    font-size: 16px;
+}
+
+.settings-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.setting-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.setting-label {
+    font-size: 13px;
+    color: var(--text-dim);
+    font-weight: 500;
+}
+
+.button-group {
+    display: flex;
+    gap: 8px;
+}
+
+.toggle-btn {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    background: rgba(255,255,255,0.05);
+    color: var(--text);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.toggle-btn:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+.toggle-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+}
+
+/* Range input */
+.range-input {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.2);
+    outline: none;
+    -webkit-appearance: none;
+}
+
+.range-input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.range-input::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+}
+
+/* Color picker */
+.color-picker-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.color-picker {
+    width: 100%;
+    height: 40px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background: none;
+}
+
+.color-presets {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+}
+
+.color-preset {
+    width: 100%;
+    aspect-ratio: 1;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.color-preset:hover {
+    transform: scale(1.1);
+    border-color: white;
+}
+
+/* === Остальные стили (вкладки, задачи и т.д.) === */
 .tabs {
     display: flex;
     gap: 6px;
-    margin-top: 36px;
+    margin-top: 45px;
     margin-bottom: 12px;
     overflow-x: auto;
     padding-bottom: 4px;
@@ -85,7 +289,6 @@ body {
     color: #fff;
 }
 
-/* === Список задач === */
 .todo-list {
     height: calc(100% - 120px);
     overflow-y: auto;
@@ -98,11 +301,11 @@ body {
     gap: 10px;
     padding: 10px 12px;
     margin: 6px 0;
-    background: rgba(255,255,255,0.08);
+    background: var(--bg-secondary);
     border-radius: 12px;
     transition: 0.2s;
 }
-.todo-item:hover { background: rgba(255,255,255,0.15); }
+.todo-item:hover { background: var(--bg-hover); }
 
 .todo-item input[type="checkbox"] {
     width: 18px; height: 18px;
@@ -119,7 +322,6 @@ body {
     opacity: 0.6;
 }
 
-/* === Форма добавления === */
 .add-form {
     position: absolute;
     bottom: 12px; left: 12px; right: 12px;
@@ -132,13 +334,13 @@ body {
     padding: 10px 14px;
     border: none;
     border-radius: 12px;
-    background: rgba(255,255,255,0.15);
+    background: var(--bg-secondary);
     color: var(--text);
     font-size: 14px;
     outline: none;
 }
 .add-input::placeholder { color: var(--text-dim); }
-.add-input:focus { background: rgba(255,255,255,0.25); }
+.add-input:focus { background: var(--bg-hover); }
 
 .add-btn {
     padding: 10px 16px;
@@ -152,7 +354,14 @@ body {
 }
 .add-btn:hover { filter: brightness(1.1); }
 
-/* === Скроллбар === */
+.placeholder-text {
+    text-align: center;
+    color: var(--text-dim);
+    margin-top: 40px;
+    font-size: 13px;
+}
+
+/* Скроллбар */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
