@@ -23,6 +23,10 @@ const bgColorPicker = document.getElementById('bgColorPicker');
 const colorPresets = document.querySelectorAll('.color-preset');
 
 let settingsOpen = false;
+// === Глобальное состояние стиля ===
+let currentBgColor = '#1a1a2e';  // Базовый цвет
+let currentOpacity = 85;          // Прозрачность 0-100 (где 0 = полностью прозрачный)
+let currentBgType = 'transparent'; // 'transparent' или 'solid'
 
 // Открыть/закрыть настройки (toggle)
 function toggleSettings() {
@@ -56,6 +60,29 @@ settingsPanel?.addEventListener('click', (e) => {
     e.stopPropagation();
 });
 
+// === Универсальное применение фона ===
+function applyBackground() {
+    if (currentBgType === 'solid') {
+        // Сплошной цвет — просто применяем его
+        document.body.style.background = currentBgColor;
+    } else {
+        const alpha = (100 - currentOpacity) / 100;
+
+        const rgb = hexToRgb(currentBgColor) || { r: 26, g: 26, b: 46 };
+        document.body.style.background = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
+    }
+}
+
+// === Хелпер: hex → rgb ===
+function hexToRgb(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : null;
+}
+
 // Загрузка настроек
 async function loadSettings() {
     try {
@@ -72,45 +99,57 @@ async function loadSettings() {
 function applySettings(settings) {
     const { bgType, opacity, bgColor } = settings;
 
-    // Тип фона
+    currentBgType = bgType;
+    currentOpacity = opacity;
+    currentBgColor = bgColor;
+
     if (bgType === 'solid') {
         document.body.classList.remove('transparent-bg');
         document.body.classList.add('solid-bg');
-        bgTransparent.classList.remove('active');
-        bgSolid.classList.add('active');
+        bgTransparent?.classList.remove('active');
+        bgSolid?.classList.add('active');
         opacityGroup.style.display = 'none';
         colorGroup.style.display = 'flex';
-        document.documentElement.style.setProperty('--bg-color', bgColor);
+
+        document.body.style.background = bgColor;
         bgColorPicker.value = bgColor;
+
     } else {
         document.body.classList.remove('solid-bg');
         document.body.classList.add('transparent-bg');
-        bgTransparent.classList.add('active');
-        bgSolid.classList.remove('active');
+        bgTransparent?.classList.add('active');
+        bgSolid?.classList.remove('active');
         opacityGroup.style.display = 'flex';
         colorGroup.style.display = 'none';
-        document.documentElement.style.setProperty('--bg-opacity', opacity / 100);
+
+        applyBackground();
+
         opacityRange.value = opacity;
         opacityValue.textContent = opacity;
+        bgColorPicker.value = bgColor;
     }
 }
 
 // Переключение типа фона
 bgTransparent?.addEventListener('click', async () => {
-    const result = await ipcRenderer.invoke('settings:update', { bgType: 'transparent' });
-    if (result.success) applySettings(result.data);
+    currentBgType = 'transparent';
+    await ipcRenderer.invoke('settings:update', { bgType: 'transparent' });
+    applySettings({ bgType: 'transparent', opacity: currentOpacity, bgColor: currentBgColor });
 });
 
 bgSolid?.addEventListener('click', async () => {
-    const result = await ipcRenderer.invoke('settings:update', { bgType: 'solid' });
-    if (result.success) applySettings(result.data);
+    currentBgType = 'solid';
+    await ipcRenderer.invoke('settings:update', { bgType: 'solid' });
+    applySettings({ bgType: 'solid', opacity: currentOpacity, bgColor: currentBgColor });
 });
 
 // Изменение прозрачности
 opacityRange?.addEventListener('input', async (e) => {
     const value = parseInt(e.target.value);
+    currentOpacity = value;
     opacityValue.textContent = value;
-    document.documentElement.style.setProperty('--bg-opacity', value / 100);
+
+    applyBackground();
 
     await ipcRenderer.invoke('settings:update', { opacity: value });
 });
@@ -118,7 +157,8 @@ opacityRange?.addEventListener('input', async (e) => {
 // Изменение цвета
 bgColorPicker?.addEventListener('input', async (e) => {
     const color = e.target.value;
-    document.documentElement.style.setProperty('--bg-color', color);
+    currentBgColor = color;
+    applyBackground();
 
     await ipcRenderer.invoke('settings:update', { bgColor: color });
 });
@@ -127,8 +167,9 @@ bgColorPicker?.addEventListener('input', async (e) => {
 colorPresets.forEach(preset => {
     preset.addEventListener('click', async () => {
         const color = preset.dataset.color;
+        currentBgColor = color;
         bgColorPicker.value = color;
-        document.documentElement.style.setProperty('--bg-color', color);
+        applyBackground();
 
         await ipcRenderer.invoke('settings:update', { bgColor: color });
     });
