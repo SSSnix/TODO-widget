@@ -14,10 +14,19 @@
     --bg-hover: rgba(255, 255, 255, 0.15);
 }
 
-html, body {
+html {
+    background: transparent !important;
     border-radius: 20px;
     overflow: hidden;
-    outline: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+body {
+    background: transparent;
+    border-radius: 20px;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
+    mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
+    clip-path: inset(0 0 0 0 round 20px);
 }
 
 /* Класс для сплошного фона */
@@ -105,8 +114,12 @@ body {
     font-weight: 600;
     color: var(--text);
     letter-spacing: 0.5px;
-    -webkit-app-region: no-drag;
     text-align: center;
+    cursor: grab;
+}
+
+.app-title:active {
+    cursor: grabbing;
 }
 
 /* === Панель настроек === */

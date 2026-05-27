@@ -22,13 +22,38 @@ const colorGroup = document.getElementById('colorGroup');
 const bgColorPicker = document.getElementById('bgColorPicker');
 const colorPresets = document.querySelectorAll('.color-preset');
 
-// Открыть/закрыть настройки
-settingsBtn?.addEventListener('click', () => {
-    settingsPanel.classList.add('active');
+let settingsOpen = false;
+
+// Открыть/закрыть настройки (toggle)
+function toggleSettings() {
+    settingsOpen = !settingsOpen;
+    if (settingsOpen) {
+        settingsPanel.classList.add('active');
+    } else {
+        settingsPanel.classList.remove('active');
+    }
+}
+
+settingsBtn?.addEventListener('click', (e) => {
+    e.stopPropagation(); // Чтобы не сработал клик по body
+    toggleSettings();
 });
 
-closeSettings?.addEventListener('click', () => {
-    settingsPanel.classList.remove('active');
+closeSettings?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleSettings();
+});
+
+// Закрыть при клике вне панели настроек
+document.addEventListener('click', (e) => {
+    if (settingsOpen && !settingsPanel.contains(e.target) && !settingsBtn.contains(e.target)) {
+        toggleSettings();
+    }
+});
+
+// Предотвращаем закрытие при клике внутри панели
+settingsPanel?.addEventListener('click', (e) => {
+    e.stopPropagation();
 });
 
 // Загрузка настроек
